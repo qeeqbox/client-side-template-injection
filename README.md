@@ -1,7 +1,32 @@
 <p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/client-side-template-injection.svg"></p>
 
-An application displays user input in an insecure manner within a client-side template. A threat actor can exploit this vulnerability by injecting a malicious template expression into a trusted web application. When the page loads in the browser, the client-side framework processes the injected expression instead of displaying it as plain text.
+## Client-Side Template Injection (CSTI)
+Client-Side Template Injection (CSTI) is a security vulnerability that arises when an application uses untrusted user input within a client-side template. In this scenario, a JavaScript template engine mistakenly interprets that input as template code rather than as plain text. Unlike Server-Side Template Injection (SSTI), which occurs on the server, CSTI takes place entirely within the user's browser. 
 
+Modern web applications frequently utilize client-side frameworks and template engines to dynamically generate HTML content. Examples of these frameworks and engines include AngularJS, Vue.js, Handlebars.js, Mustache, and client-side implementations of EJS. If an application incorrectly handles user input as part of a template, an attacker may exploit this vulnerability to inject template expressions that the browser subsequently evaluates.
+
+## How CSTI Works
+1. Client-Side Template Rendering: The web application utilizes a JavaScript template engine or framework to generate dynamic content directly in the browser.
+2. User-Controlled Input: The application improperly incorporates user-controlled input into a client-side template, treating it as executable code rather than regular data.
+3. Template Evaluation: When the browser renders the template, the client-side template engine evaluates template expressions supplied by the attacker.
+
+## Impact  
+Depending on the framework and the application, a successful CSTI attack can enable an attacker to:
+- Execute arbitrary JavaScript (leading to Cross-Site Scripting).
+- Read or manipulate page content.
+- Steal session tokens or sensitive user information.
+- Perform actions on behalf of the user.
+- Bypass client-side security controls.
+
+## Mitigation Strategies  
+To prevent CSTI vulnerabilities:
+- Treat user input as data, not as template code. Never allow untrusted input to be integrated into a client-side template.
+- Avoid dynamic template compilation. Refrain from using functions such as AngularJS's `$compile` on user-controlled content.
+- Use secure framework features. Prefer data binding mechanisms that automatically treat user input as plain text instead of executable template expressions.
+- Keep frameworks and libraries up to date. Newer versions often incorporate security improvements and protections against template injection attacks.
+- Conduct regular security testing and code reviews. Review applications for unsafe client-side template rendering and test for CSTI during security assessments.
+
+## Example
 Clone this current repo recursively
 ```sh
 git clone --recurse-submodules https://github.com/qeeqbox/client-side-template-injection
