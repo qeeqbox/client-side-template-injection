@@ -10,7 +10,7 @@ Modern web applications frequently utilize client-side frameworks and template e
 2. User-Controlled Input: The application improperly incorporates user-controlled input into a client-side template, treating it as executable code rather than regular data.
 3. Template Evaluation: When the browser renders the template, the client-side template engine evaluates template expressions supplied by the attacker.
 
-## Impact  
+## Impact of CSTI
 Depending on the framework and the application, a successful CSTI attack can enable an attacker to:
 - Execute arbitrary JavaScript (leading to Cross-Site Scripting).
 - Read or manipulate page content.
@@ -18,7 +18,7 @@ Depending on the framework and the application, a successful CSTI attack can ena
 - Perform actions on behalf of the user.
 - Bypass client-side security controls.
 
-## Mitigation  
+## CSTI Mitigation Strategies
 To prevent CSTI vulnerabilities:
 - Treat user input as data, not as template code. Never allow untrusted input to be integrated into a client-side template.
 - Avoid dynamic template compilation. Refrain from using functions such as AngularJS's `$compile` on user-controlled content.
