@@ -1,6 +1,6 @@
 <p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/client-side-template-injection.svg"></p>
 
-An application insecurely renders user input within a server-side template. This vulnerability allows a threat actor to exploit the application by injecting a malicious template expression. When the server processes the template to generate a response, it evaluates the injected expression instead of treating it as plain text.
+An application displays user input in an insecure manner within a client-side template. A threat actor can exploit this vulnerability by injecting a malicious template expression into a trusted web application. When the page loads in the browser, the client-side framework processes the injected expression instead of displaying it as plain text.
 
 Clone this current repo recursively
 ```sh
