@@ -18,7 +18,7 @@ Depending on the framework and the application, a successful CSTI attack can ena
 - Perform actions on behalf of the user.
 - Bypass client-side security controls.
 
-## Mitigation Strategies  
+## Mitigation  
 To prevent CSTI vulnerabilities:
 - Treat user input as data, not as template code. Never allow untrusted input to be integrated into a client-side template.
 - Avoid dynamic template compilation. Refrain from using functions such as AngularJS's `$compile` on user-controlled content.
