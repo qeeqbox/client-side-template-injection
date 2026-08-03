@@ -12,7 +12,7 @@ python3 client-side-template-injection/vulnerable-web-app/webapp.py
 ```
 Open the webapp in your browser 127.0.0.1:5142 and click register
 <p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/1.png"></p>
-Fill in the username, password, email as an AngularJS expression, and CAPTCHA answer
+Fill in the username, password, email as an AngularJS expression {{constructor.constructor('alert(1)')()}}, and CAPTCHA answer
 <p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/2.png"></p>
 The test user is created
 <p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/4.png"></p>
