@@ -1,55 +1,87 @@
-<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/client-side-template-injection.png"></p>
+<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/client-side-template-injection.svg"></p>
 
-A threat actor may trick a victim into executing native template syntax on a vulnerable target (This is similar SSTI but happens on the client side)
+An application insecurely renders user input within a server-side template. This vulnerability allows a threat actor to exploit the application by injecting a malicious template expression. When the server processes the template to generate a response, it evaluates the injected expression instead of treating it as plain text.
 
-## Example #1
-1. Threat actor crafts an exploit URL
-2. Bob logs in to the vulnerable website
-3. Threat actor tricks Bob into clicking on the exploit URL
-4. Bob clicks on the exploit URL, and the browser executes the exploit
+Clone this current repo recursively
+```sh
+git clone --recurse-submodules https://github.com/qeeqbox/client-side-template-injection
+```
+Run the webapp using Python
+```sh
+python3 client-side-template-injection/vulnerable-web-app/webapp.py
+```
+Open the webapp in your browser 127.0.0.1:5142 and click register
+<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/1.png"></p>
+Fill in the username, password, email as an AngularJS expression, and CAPTCHA answer
+<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/2.png"></p>
+The test user is created
+<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/4.png"></p>
+Right-click on the page and click on View Page source, go to the network section, then log in as test
+<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/5.png"></p>
+The response includes {{constructor.constructor('alert(1)')()}}, which will be is executed in the client browser
+<p align="center"> <img src="https://raw.githubusercontent.com/qeeqbox/client-side-template-injection/main/content/6.png"></p>
 
 ## Code
-#### Target-Logic
+When a user fills in the registration form, the POST request sends the values to the add_user() function
+```py
+elif parsed_url.path == "/register" and all(key in post_request_data for key in ["username","password","email","captcha","uuid"]):
+    ret = self.add_user(post_request_data["username"][0],post_request_data["password"][0],post_request_data["email"][0],post_request_data["captcha"][0],post_request_data["uuid"][0],post_request_data["debug"][0])
+    if ret == "valid":
+        self.send_content(200, [('Content-type', 'text/html')], self.msg_page(f"User {post_request_data["username"][0]} created".encode("utf-8"), b"login"))
+    elif ret == "captcha":
+        self.send_content(200, [('Content-type', 'text/html')], self.msg_page(f"Wrong captcha".encode("utf-8"), b"login"))
+    elif ret == "username":
+        self.send_content(200, [('Content-type', 'text/html')], self.msg_page(f"User {post_request_data['username'][0]} already exists".encode("utf-8"), b"login"))
+    else:
+        self.send_content(200, [('Content-type', 'text/html')], self.msg_page(f"User {post_request_data["username"][0]} was not created".encode("utf-8"), b"login"))
+    return
+```
+The add_user() function does verify the values, if a user enters AngularJS expression, it will be saved in the database
+```py
+def add_user(self, username,password,email,captcha,uuid,debug):
+    try:
+        with connect(DATABASE, isolation_level=None, check_same_thread=False) as connection:
+            cursor = connection.cursor()
+            results_user = cursor.execute("SELECT * FROM users WHERE username='%s'" % (username)).fetchone()
+            if results_user:
+                return "username"
+            results_captcha = cursor.execute("SELECT * FROM captcha WHERE uuid='%s'" % (uuid)).fetchone()
+            if results_captcha[3] == captcha or debug == "1":
+                cursor.execute("INSERT into users(username, hash, email, department, access, is_admin) values(?,?,?,?,?,?)", (username, sha512(password.encode("utf-8")+SALT).hexdigest(),email,"none","profile,tickets",0))
+                return "valid"
+            else:
+                return "captcha"
+    except Exception as e:
+        return str(e).encode("utf-8")
+```
+When the user logs in and has access to the profile section, the profile section will be filled with the values
+```py
+@logged_in
+@check_access(access="profile")
+@render_page(file="profile.html")
+def profile_section(self):
+    temp = b""
+    with connect(DATABASE, isolation_level=None, check_same_thread=False) as connection:
+        cursor = connection.cursor()
+        profile = cursor.execute("SELECT * FROM users WHERE username='%s'" % self.session["username"]).fetchone()
+        if profile:
+            temp += f"<div>username: {profile[1]}</div>".encode("utf-8")
+            temp += f"<div>email: {profile[3]}</div>".encode("utf-8")
+            temp += f"<div>department: {profile[4]}</div>".encode("utf-8")
+            temp += f"<div>access: {profile[5]}</div>".encode("utf-8")
+            temp += f"<div>admin: {profile[6]}</div>".encode("utf-8")
+    return [((b"{{profile-results}}"),temp)]
+```
+The profile section is rendered using AngularJS, as indicated by the ng-app value, this will be rendered in the client browser
 ```html
-<html>
-  <body>
-    <div id="alert"></d>
-    <script>
-    var url = new URL(window.location);
-    var alert = url.searchParams.get("alert");
-    document.getElementById('alert').innerHTML = alert
-    document.body.style.backgroundColor = alert
-    </script>
-  </body>
-</html>
+<form class="box-border-style" id="target-section" method="post">
+  <div class="div-header">
+    <div class="div-left">Profile Info</div>
+  </div>
+  <div class="div-100 collapse show">
+      <div id="profile-results" ng-app>
+        {{profile-results}}
+      </div>
+  </div>
+</form>
 ```
-
-#### Target-In
-```
-/?alert=<img src="/" onerror=alert("test")>
-```
-
-#### Target-Output
-```
-alert box: test
-```
-
-## Impact
-Vary
-
-## Risk
-- Command execution
-
-## Redemption
-- Input validation
-- Logic-less
-
-## Names
- - Client Side Template Injection
- - SST injection
-
-## ID
-477ac741-89fe-4d0b-b094-09d720ed9d83
-
-## References
-- [tenable](https://www.tenable.com/plugins/was/112684)
