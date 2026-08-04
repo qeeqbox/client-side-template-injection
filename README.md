@@ -26,7 +26,7 @@ To prevent CSTI vulnerabilities:
 - Keep frameworks and libraries up to date. Newer versions often incorporate security improvements and protections against template injection attacks.
 - Conduct regular security testing and code reviews. Review applications for unsafe client-side template rendering and test for CSTI during security assessments.
 
-## Example
+## CSTI Example
 Clone this current repo recursively
 ```sh
 git clone --recurse-submodules https://github.com/qeeqbox/client-side-template-injection
