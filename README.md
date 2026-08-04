@@ -11,7 +11,7 @@ Modern web applications frequently utilize client-side frameworks and template e
 3. Template Evaluation: When the browser renders the template, the client-side template engine evaluates template expressions supplied by the attacker.
 
 ## Impact of CSTI
-Depending on the framework and the application, a successful CSTI attack can enable an attacker to:
+Successful CSTI exploitation can enable an attacker to:
 - Execute arbitrary JavaScript (leading to Cross-Site Scripting).
 - Read or manipulate page content.
 - Steal session tokens or sensitive user information.
